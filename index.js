@@ -1,15 +1,18 @@
+
 const mineflayer = require('mineflayer');
 const express = require('express');
 
 const app = express();
 const port = process.env.PORT || 3000;
-app.get('/', (req, res) => res.send('Bot is running!'));
-app.listen(port, () => console.log(`Web server running on port ${port}`));
+app.get('/', (req, res) => res.send('Bot is online and running!'));
+app.listen(port, () => console.log(Web server listening on port ${port}));
 
+// البيانات مالتك مأخوذة من الصورة بالضبط وبدون أي تغيير
 const botOptions = {
-  host: 'yourserver.aternos.me', // تأكد من وضع رابط سيرفرك هنا
-  port: 25565,                  
-  username: 'AntiAFK_Bot'
+  host: '431551616.aternos.me', 
+  port: 16875,                  
+  username: 'AntiAFK_Bot',
+  version: '1.21.1' 
 };
 
 let bot;
@@ -22,58 +25,43 @@ function createBot() {
     startAntiAFK();
   });
 
-  // 1. حركة عشوائية ذكية لمنع الخمول
   function startAntiAFK() {
     const actions = ['forward', 'back', 'left', 'right', 'jump'];
     
     setInterval(() => {
       if (!bot) return;
-      
-      // اختيار حركة عشوائية
       const randomAction = actions[Math.floor(Math.random() * actions.length)];
-      
-      // تشغيل الحركة
       bot.setControlState(randomAction, true);
-      
-      // إيقاف الحركة بعد ثانية واحدة لكي لا يستمر بالركض في اتجاه واحد
       setTimeout(() => {
         bot.setControlState(randomAction, false);
-      }, 1000);
-      
-    }, 60000); // يتحرك حركة عشوائية جديدة كل دقيقة
+      }, 1200);
+    }, 60000); 
 
-    // رسائل شات عشوائية كل 5 دقائق
-    const messages = ["Hello!", "Chilling here...", "Keeping server alive!"];
+    const messages = ["Hello bro!", "Nice server you have here", "Keeping the server alive...", "Purpur system is smooth!"];
     setInterval(() => {
       if (!bot) return;
       const randomMessage = messages[Math.floor(Math.random() * messages.length)];
       bot.chat(randomMessage);
-    }, 300000);
+    }, 240000);
   }
 
-  // 2. إذا مات البوت: يغني/يكتب في الشات ثم يعود للحياة تلقائياً
   bot.on('death', () => {
-    console.log('البوت مات! جاري إرسال أغنية الموت والـ Respawn...');
-    
-    // قائمة بأبيات أو أغاني يكتبها عند الموت
+    console.log('البوت مات وجاري إرسال الأغنية...');
     const deathSongs = [
       "🎤 ليت الزمان يعود يوماً.. قتلتني الأيامُ والزومبيُّ قسراً! 💔",
       "🎤 سأرجع أقوى فلا تفرحوا.. وموت الفتى غدرةً لا يدوم! 🎵",
       "🎤 آه يا ليل.. طحت وراحت الروح.. سأعود للانتقام! 🎶"
     ];
-    
     const randomSong = deathSongs[Math.floor(Math.random() * deathSongs.length)];
-    
-    // يرسل الأغنية في الشات فوراً قبل أن يرسو به المكان في نقطة الرسبون
     bot.chat(randomSong);
   });
 
   bot.on('end', () => {
-    console.log('تم الفصل، إعادة محاولة بعد دقيقة...');
-    setTimeout(createBot, 60000); 
+    console.log('انفصل، جاري إعادة المحاولة بعد 45 ثانية...');
+    setTimeout(createBot, 45000); 
   });
 
-  bot.on('error', (err) => console.log('خطأ: ', err));
+  bot.on('error', (err) => console.log('خطأ في الاتصال: ', err));
 }
 
 createBot();
