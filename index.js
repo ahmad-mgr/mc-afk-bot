@@ -1,16 +1,14 @@
 const mineflayer = require('mineflayer');
 const express = require('express');
 
-// إعداد خادم ويب بسيط جداً لكي لا يغلق موقع Render الخدمة
 const app = express();
 const port = process.env.PORT || 3000;
 app.get('/', (req, res) => res.send('Bot is running!'));
 app.listen(port, () => console.log(`Web server running on port ${port}`));
 
-// إعدادات البوت الأساسية
 const botOptions = {
-  host: '431551616.aternos.me', // ضع رابط سيرفر آترنوس الخاص بك هنا
-  port: 16875,                  // غير البورت إذا كان مخصصاً
+  host: 'yourserver.aternos.me', // تأكد من وضع رابط سيرفرك هنا
+  port: 25565,                  
   username: 'AntiAFK_Bot'
 };
 
@@ -24,19 +22,27 @@ function createBot() {
     startAntiAFK();
   });
 
+  // 1. حركة عشوائية ذكية لمنع الخمول
   function startAntiAFK() {
-    // الحركة كل دقيقتين
+    const actions = ['forward', 'back', 'left', 'right', 'jump'];
+    
     setInterval(() => {
       if (!bot) return;
-      bot.setControlState('forward', true);
+      
+      // اختيار حركة عشوائية
+      const randomAction = actions[Math.floor(Math.random() * actions.length)];
+      
+      // تشغيل الحركة
+      bot.setControlState(randomAction, true);
+      
+      // إيقاف الحركة بعد ثانية واحدة لكي لا يستمر بالركض في اتجاه واحد
       setTimeout(() => {
-        bot.setControlState('forward', false);
-        bot.setControlState('back', true);
-        setTimeout(() => bot.setControlState('back', false), 500);
+        bot.setControlState(randomAction, false);
       }, 1000);
-    }, 120000);
+      
+    }, 60000); // يتحرك حركة عشوائية جديدة كل دقيقة
 
-    // كتابة رسالة كل 5 دقائق
+    // رسائل شات عشوائية كل 5 دقائق
     const messages = ["Hello!", "Chilling here...", "Keeping server alive!"];
     setInterval(() => {
       if (!bot) return;
@@ -45,8 +51,25 @@ function createBot() {
     }, 300000);
   }
 
+  // 2. إذا مات البوت: يغني/يكتب في الشات ثم يعود للحياة تلقائياً
+  bot.on('death', () => {
+    console.log('البوت مات! جاري إرسال أغنية الموت والـ Respawn...');
+    
+    // قائمة بأبيات أو أغاني يكتبها عند الموت
+    const deathSongs = [
+      "🎤 ليت الزمان يعود يوماً.. قتلتني الأيامُ والزومبيُّ قسراً! 💔",
+      "🎤 سأرجع أقوى فلا تفرحوا.. وموت الفتى غدرةً لا يدوم! 🎵",
+      "🎤 آه يا ليل.. طحت وراحت الروح.. سأعود للانتقام! 🎶"
+    ];
+    
+    const randomSong = deathSongs[Math.floor(Math.random() * deathSongs.length)];
+    
+    // يرسل الأغنية في الشات فوراً قبل أن يرسو به المكان في نقطة الرسبون
+    bot.chat(randomSong);
+  });
+
   bot.on('end', () => {
-    console.log('تم الفصل، إعادة المحاولة بعد دقيقة...');
+    console.log('تم الفصل، إعادة محاولة بعد دقيقة...');
     setTimeout(createBot, 60000); 
   });
 
